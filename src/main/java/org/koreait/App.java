@@ -2,7 +2,7 @@ package org.koreait;
 
 import org.koreait.container.Container;
 import org.koreait.Controller.ArticleController;
-import org.koreait.controller.MemberController;
+import org.koreait.Controller.MemberController;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
