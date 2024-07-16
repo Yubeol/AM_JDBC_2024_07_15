@@ -1,7 +1,7 @@
 package org.koreait.container;
 
 import org.koreait.Controller.ArticleController;
-import org.koreait.controller.MemberController;
+import org.koreait.Controller.MemberController;
 import org.koreait.dao.ArticleDao;
 import org.koreait.dao.MemberDao;
 import org.koreait.Service.ArticleService;
