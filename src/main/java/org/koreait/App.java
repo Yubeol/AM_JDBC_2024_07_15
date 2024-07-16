@@ -1,7 +1,7 @@
 package org.koreait;
 
 import org.koreait.container.Container;
-import org.koreait.controller.ArticleController;
+import org.koreait.Controller.ArticleController;
 import org.koreait.controller.MemberController;
 
 import java.sql.Connection;
