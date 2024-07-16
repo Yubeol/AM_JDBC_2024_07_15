@@ -1,20 +1,16 @@
 package org.koreait.dao;
 
-import org.koreait.Article;
+import org.koreait.container.Container;
+import org.koreait.dto.Article;
 import org.koreait.util.DBUtil;
 import org.koreait.util.SecSql;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class ArticleDao {
-    Connection conn;
 
-    public ArticleDao(Connection conn) {
-        this.conn = conn;
-    }
 
     public int doWrite(String title, String body) {
         SecSql sql = new SecSql();
@@ -25,7 +21,7 @@ public class ArticleDao {
         sql.append("title = ?,", title);
         sql.append("`body`= ?;", body);
 
-        return DBUtil.insert(conn, sql);
+        return DBUtil.insert(Container.conn, sql);
     }
 
     public List<Article> getArticles() {
@@ -34,7 +30,7 @@ public class ArticleDao {
         sql.append("FROM article");
         sql.append("ORDER BY id DESC");
 
-        List<Map<String, Object>> articleListMap = DBUtil.selectRows(conn, sql);
+        List<Map<String, Object>> articleListMap = DBUtil.selectRows(Container.conn, sql);
 
         List<Article> articles = new ArrayList<>();
 
@@ -51,7 +47,7 @@ public class ArticleDao {
         sql.append("FROM article");
         sql.append("WHERE id = ?", id);
 
-        return DBUtil.selectRow(conn, sql);
+        return DBUtil.selectRow(Container.conn, sql);
     }
 
     public void doUpdate(int id, String title, String body) {
@@ -66,7 +62,7 @@ public class ArticleDao {
         }
         sql.append("WHERE id = ?", id);
 
-        DBUtil.update(conn, sql);
+        DBUtil.update(Container.conn, sql);
     }
 
     public void doDelete(int id) {
@@ -74,6 +70,6 @@ public class ArticleDao {
         sql.append("DELETE FROM article");
         sql.append("WHERE id = ?", id);
 
-        DBUtil.delete(conn, sql);
+        DBUtil.delete(Container.conn, sql);
     }
 }

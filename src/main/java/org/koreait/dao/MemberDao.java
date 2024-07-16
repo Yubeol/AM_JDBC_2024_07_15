@@ -1,26 +1,22 @@
 package org.koreait.dao;
 
+import org.koreait.container.Container;
+import org.koreait.dto.Member;
 import org.koreait.util.DBUtil;
 import org.koreait.util.SecSql;
 
-import java.sql.Connection;
+import java.util.Map;
 
 public class MemberDao {
 
-    Connection conn;
-
-    public MemberDao(Connection conn) {
-        this.conn = conn;
-    }
-
-    public boolean isLoginIdDup(Connection conn, String loginId) {
+    public boolean isLoginIdDup(String loginId) {
         SecSql sql = new SecSql();
 
         sql.append("SELECT COUNT(*) > 0");
         sql.append("FROM `member`");
         sql.append("WHERE loginId = ?;", loginId);
 
-        return DBUtil.selectRowBooleanValue(conn, sql);
+        return DBUtil.selectRowBooleanValue(Container.conn, sql);
     }
 
     public int doJoin(String loginId, String loginPw, String name) {
@@ -33,6 +29,22 @@ public class MemberDao {
         sql.append("loginPw= ?,", loginPw);
         sql.append("name = ?;", name);
 
-        return DBUtil.insert(conn, sql);
+        return DBUtil.insert(Container.conn, sql);
+    }
+
+    public Member getMemberByLoginId(String loginId) {
+        SecSql sql = new SecSql();
+
+        sql.append("SELECT * ");
+        sql.append("FROM `member`");
+        sql.append("WHERE loginId = ?;", loginId);
+
+        Map<String, Object> memberMap = DBUtil.selectRow(Container.conn, sql);
+
+        if (memberMap.isEmpty()) {
+            return null;
+        }
+
+        return new Member(memberMap);
     }
 }

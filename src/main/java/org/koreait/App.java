@@ -1,5 +1,6 @@
 package org.koreait;
 
+import org.koreait.container.Container;
 import org.koreait.controller.ArticleController;
 import org.koreait.controller.MemberController;
 
@@ -10,19 +11,18 @@ import java.util.Scanner;
 
 public class App {
 
-    private int loginAttempts = 0;
-    private final int MAX_LOGIN_ATTEMPTS = 3;
+    private Scanner sc;
+
+    public App() {
+        Container.init();
+        this.sc = Container.sc;
+    }
 
     public void run() {
+
         System.out.println("==프로그램 시작==");
-        Scanner sc = new Scanner(System.in);
 
         while (true) {
-            if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
-                System.out.println("로그인 시도 횟수 초과. 잠시 후 다시 시도해주세요.");
-                break;
-            }
-
             System.out.print("명령어 > ");
             String cmd = sc.nextLine().trim();
 
@@ -30,18 +30,27 @@ public class App {
 
             try {
                 Class.forName("org.mariadb.jdbc.Driver");
-                String url = "jdbc:mariadb://127.0.0.1:3306/AM_JDBC_2024_07?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul";
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            String url = "jdbc:mariadb://127.0.0.1:3306/AM_JDBC_2024_07?useUnicode=true&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Seoul";
+
+            try {
                 conn = DriverManager.getConnection(url, "root", "");
 
-                int actionResult = action(conn, sc, cmd);
+                Container.conn = conn;
+
+                int actionResult = action(cmd);
 
                 if (actionResult == -1) {
                     System.out.println("==프로그램 종료==");
+                    sc.close();
                     break;
                 }
 
-            } catch (ClassNotFoundException | SQLException e) {
-                System.out.println("에러: " + e.getMessage());
+            } catch (SQLException e) {
+                System.out.println("에러 1 : " + e);
             } finally {
                 try {
                     if (conn != null && !conn.isClosed()) {
@@ -52,39 +61,23 @@ public class App {
                 }
             }
         }
-
-        sc.close();
-        System.out.println("==프로그램 종료==");
     }
 
-    private boolean doLogin(Scanner sc) {
-        System.out.print("아이디 입력: ");
-        String id = sc.nextLine().trim();
-        System.out.print("비밀번호 입력: ");
-        String password = sc.nextLine().trim();
+    private int action(String cmd) {
 
-
-        return true;
-    }
-
-    private int action(Connection conn, Scanner sc, String cmd) {
         if (cmd.equals("exit")) {
             return -1;
         }
 
-        MemberController memberController = new MemberController(sc, conn);
-        ArticleController articleController = new ArticleController(conn, sc);
+        MemberController memberController = Container.memberController;
+        ArticleController articleController = Container.articleController;
 
-        if (cmd.equals("login")) {
-            boolean loggedIn = doLogin(sc);
-            if (!loggedIn) {
-                loginAttempts++;
-            } else {
-                loginAttempts = 0;
-            }
-        } else if (cmd.equals("logout")) {
-            System.out.println("로그아웃 되었습니다.");
-            return -1;
+        if (cmd.equals("member logout")) {
+            memberController.logout();
+        } else if (cmd.equals("member profile")) {
+            memberController.showProfile();
+        } else if (cmd.equals("member login")) {
+            memberController.login();
         } else if (cmd.equals("member join")) {
             memberController.doJoin();
         } else if (cmd.equals("article write")) {
